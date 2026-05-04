@@ -9,6 +9,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        loadClinicUser(session.user.id)
+      } else {
+        setLoading(false)
+      }
+    })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null)
@@ -16,20 +25,29 @@ export function AuthProvider({ children }) {
           await loadClinicUser(session.user.id)
         } else {
           setClinicUser(null)
+          setLoading(false)
         }
-        setLoading(false)
       }
     )
     return () => subscription.unsubscribe()
   }, [])
 
   async function loadClinicUser(authUserId) {
-    const { data } = await supabase
-      .from('clinic_users')
-      .select('*, clinics(*)')
-      .eq('auth_user_id', authUserId)
-      .single()
-    setClinicUser(data)
+    try {
+      const { data, error } = await supabase
+        .from('clinic_users')
+        .select('*, clinics(*)')
+        .eq('auth_user_id', authUserId)
+        .single()
+      
+      console.log('clinicUser data:', data)
+      console.log('clinicUser error:', error)
+      setClinicUser(data ?? null)
+    } catch(e) {
+      console.error('error cargando clinicUser:', e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const value = {

@@ -3,6 +3,8 @@ import { AuthProvider } from '../context/AuthContext'
 import { ProtectedRoute } from './ProtectedRoute'
 import { LoginPage } from '../pages/auth/LoginPage'
 import { DashboardPage } from '../pages/dashboard/DashboardPage'
+import { PatientsPage } from '../pages/patients/PatientsPage'
+import { NewPatientPage } from '../pages/patients/NewPatientPage'
 
 export function AppRouter() {
   return (
@@ -13,6 +15,16 @@ export function AppRouter() {
           <Route path="/dashboard" element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/patients" element={
+            <ProtectedRoute>
+              <PatientsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/patients/new" element={
+            <ProtectedRoute>
+              <NewPatientPage />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
